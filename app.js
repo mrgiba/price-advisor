@@ -1,42 +1,55 @@
-/**
- * Module dependencies.
- */
-var express = require('express'),
-    bodyParser = require('body-parser'),
-    routes = require('./server/routes/index'),
-    http = require('http'),
-    path = require('path'),
-    morgan = require('morgan');
+(function () {
+    'use strict';
 
-var app = express();
+    var express = require('express'),
+        bodyParser = require('body-parser'),
+        //routes = require('./server/routes/index'),
+        http = require('http'),
+        path = require('path'),
+        morgan = require('morgan'),
+        //expressSession = require('express-session'),
+        //cookieParser = require('cookie-parser'),
+        app = express();
 
-// all environments
-app.set('port', process.env.VCAP_APP_PORT || 3000);
-//app.set('views', __dirname + '/views');
-//app.set('view engine', 'ejs');
-app.engine('.html', require('ejs').renderFile);
+    app.set('port', process.env.VCAP_APP_PORT || 3000);
 
-app.use(bodyParser.json);
-app.use(bodyParser.urlencoded({
-    extended: true
-}));
-app.use(morgan('dev'));
+    app.use(bodyParser.json());
+    app.use(bodyParser.urlencoded({
+        extended: true
+    }));
+    app.use(morgan('dev'));
 
-//app.get('/', routes.index);
-app.use('/client', express.static(path.join(__dirname, 'client')));
-app.set(express.static(path.join(__dirname, 'views')));
+    app.use('/client', express.static(path.join(__dirname, 'client')));
+    app.use(express.static(path.join(__dirname, "views")));
 
-//app.get('/:widgetid', function (req, res) {
-//    res.render(req.params.widgetid + '.html',
-//        {},
-//        function (err, html) {
-//            if (!err) {
-//                return res.send(html);
-//            }
-//            res.status(404).end();
-//        });
-//});
+    // Catch 404 and forward to Error Handler
+    app.use(function (req, res, next) {
+        var err = new Error('Not Found');
+        err.status = 404;
+        next(err);
+    });
 
-http.createServer(app).listen(app.get('port'), function () {
-    console.log('Express server listening on port ' + app.get('port'));
-});
+    // Error Handlers
+    // Development Error Handler - prints stack trace
+    if (app.get('env') === 'development') {
+        app.use(function (err, req, res) {
+            res.status(err.status || 500);
+            res.send(err);
+        });
+    }
+
+    // Production Error Handler - no stack trace
+    app.use(function (err, req, res) {
+        res.status(err.status || 500);
+        res.send('Sorry, a problem occurred during your request');
+    });
+
+        http.createServer(app).listen(app.get('port'), function () {
+        console.log('Express server listening on port ' + app.get('port'));
+    });
+
+
+    exports.getInstance = function () {
+        return app;
+    };
+}());
