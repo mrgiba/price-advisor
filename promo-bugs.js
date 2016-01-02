@@ -2,6 +2,28 @@ var crawlerjs = require('crawler-js'),
     cheerio = require('cheerio');
 // selector: 'ol.discussionListItems li.discussionListItem div.main h3.title a.PreviewTooltip',
 
+/* Search criteria:
+- simple word (regard synonyms, regex, plural vs singular)
+- price
+- store
+ */
+
+var searchCriteria = {
+    words: ['camisetas'];
+}
+
+function evaluateOffer(headline) {
+    //console.log('Evaluating headline ' + headline);
+    var lowerCaseHeadline = headline.toLowerCase();
+
+    var ret = searchCriteria.words.some(
+        function (word) {
+            return lowerCaseHeadline.search(word) > -1;
+        }
+    )
+
+    return ret;
+}
 
 var worlds = {
     interval: 1000,
@@ -12,8 +34,8 @@ var worlds = {
         {
             selector: 'ol.discussionListItems li.discussionListItem',
             callback: function(err, html, url, response){
-                console.log('Crawled url:');
-                console.log(url);
+                //console.log('Crawled url:');
+                //console.log(url);
                 //console.log(response); // If you need see more details about request
                 if(!err){
                     //data = {};
@@ -33,13 +55,19 @@ var worlds = {
                     var previewToolTip = $('div.main h3.title a.PreviewTooltip')
                     var offerUrl = previewToolTip.attr('href');
                     var offerHeadline = previewToolTip.text();
-                    if(offerUrl) {
+
+
+                    if(offerUrl && evaluateOffer(offerHeadline)) {
+                        //TODO: evaluate each headline against keywords
+
                         console.log("Offer URL: " + offerUrl);
                         console.log("Offer headline: " + offerHeadline);
                         console.log("Offer ID: " + offerId);
                     }
 
-                    //TODO: evaluate each headline against keywords
+
+
+
                     //TODO: store each new entry in the database
                 }else{
                     console.log(err);
