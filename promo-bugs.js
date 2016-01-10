@@ -1,28 +1,56 @@
 var crawlerjs = require('crawler-js'),
-    cheerio = require('cheerio');
+    cheerio = require('cheerio'),
+    fs = require("fs");
 // selector: 'ol.discussionListItems li.discussionListItem div.main h3.title a.PreviewTooltip',
 
 /* Search criteria:
-- simple word (regard synonyms, regex, plural vs singular)
+- simple word (regard synonyms, regex, plural vs singular, accents)
 - price
 - store
  */
 
-var searchCriteria = {
-    words: ['camisetas'];
+function normalizeString( headline ) {
+    var lowerCaseHeadline = headline.toLowerCase();
+
+    var chatToAccentVariationsMap 	= {
+        a : /[\xE0-\xE6]/g,
+        e : /[\xE8-\xEB]/g,
+        i : /[\xEC-\xEF]/g,
+        o : /[\xF2-\xF6]/g,
+        u : /[\xF9-\xFC]/g,
+        c : /\xE7/g,
+        n : /\xF1/g
+    };
+
+    for ( var char in chatToAccentVariationsMap ) {
+        var regex = chatToAccentVariationsMap[char];
+        lowerCaseHeadline = lowerCaseHeadline.replace( regex, char );
+    }
+
+    return lowerCaseHeadline;
 }
+
+//
+//var searchCriteria = {
+//    words: ['RelógiO']
+//}
+
+var searchCriteria = JSON.parse(fs.readFileSync('./searchCriteria.json'));
+//var searchCriteria = require('./searchCriteria.json');
 
 function evaluateOffer(headline) {
     //console.log('Evaluating headline ' + headline);
-    var lowerCaseHeadline = headline.toLowerCase();
+    var lowerCaseHeadline = normalizeString(headline);
 
-    var ret = searchCriteria.words.some(
+    var foundMatch = searchCriteria.words.some(
         function (word) {
-            return lowerCaseHeadline.search(word) > -1;
+            var normalizedWord = normalizeString(word);
+            //return lowerCaseHeadline.search(new RegExp(word, "i")) > -1;
+            return lowerCaseHeadline.search(normalizedWord) > -1;
         }
-    )
+    );
 
-    return ret;
+    return foundMatch;
 }
 
 var worlds = {
@@ -52,7 +80,7 @@ var worlds = {
 
                     var offerId = html.attr('id');
 
-                    var previewToolTip = $('div.main h3.title a.PreviewTooltip')
+                    var previewToolTip = $('div.main h3.title a.PreviewTooltip');
                     var offerUrl = previewToolTip.attr('href');
                     var offerHeadline = previewToolTip.text();
 
@@ -75,7 +103,7 @@ var worlds = {
             }
         }
     ]
-}
+};
 
 // TODO: setup schedule to run crawler in a regular basis
 
