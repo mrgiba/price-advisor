@@ -1,7 +1,11 @@
 var crawlerjs = require('crawler-js'),
     cheerio = require('cheerio'),
-    fs = require("fs");
-// selector: 'ol.discussionListItems li.discussionListItem div.main h3.title a.PreviewTooltip',
+    fs = require("fs"),
+    sendgrid;
+
+if(process.env.SENDGRID_USER && process.env.SENDGRID_KEY) {
+    sendgrid  = require('sendgrid')(process.env.SENDGRID_USER, process.env.SENDGRID_KEY);
+}
 
 /* Search criteria:
 - simple word (regard synonyms, regex, plural vs singular, accents)
@@ -35,11 +39,16 @@ function normalizeString( headline ) {
 //    words: ['RelógiO']
 //}
 
-var searchCriteria = JSON.parse(fs.readFileSync('./searchCriteria.json'));
-//var searchCriteria = require('./searchCriteria.json');
+//var searchCriteria = JSON.parse(fs.readFileSync('./searchCriteria.json'));
+var searchCriteria;
+if(process.env.SEARCH_KEYWORDS) {
+    searchCriteria = {words: process.env.SEARCH_KEYWORDS.split(/[\s,]+/i)}
+}
+else {
+    searchCriteria = JSON.parse(fs.readFileSync('./searchCriteria.json'));
+}
 
 function evaluateOffer(headline) {
-    //console.log('Evaluating headline ' + headline);
     var lowerCaseHeadline = normalizeString(headline);
 
     var foundMatch = searchCriteria.words.some(
@@ -52,6 +61,30 @@ function evaluateOffer(headline) {
 
     return foundMatch;
 }
+
+function sendMailNotification(offerHeadline, offerUrl) {
+    //to      : 'priceuser@mailinator.com',
+    var payload   = {
+        to      : 'mrgiba@gmail.com',
+        from    : "advisor@price-advisor.mybluemix.net",
+        fromname: "Price Advisor",
+        subject : 'Offer found',
+        html    : 'Offer found<br>' + offerHeadline + '<br>' + offerUrl
+    }
+
+    if(sendgrid) {
+        sendgrid.send(payload, function (err, json) {
+            if (err) {
+                console.error('Error sending email: ' + JSON.stringify(err));
+            }
+            else {
+                console.log('Mail sent: ' + JSON.stringify(json));
+            }
+        });
+    }
+}
+
+//     get: 'http://www.promobugs.com.br/forums/promocoes.4/page-[numbers:1:1:1]'
 
 var worlds = {
     interval: 1000,
@@ -84,17 +117,15 @@ var worlds = {
                     var offerUrl = previewToolTip.attr('href');
                     var offerHeadline = previewToolTip.text();
 
-
                     if(offerUrl && evaluateOffer(offerHeadline)) {
-                        //TODO: evaluate each headline against keywords
+                        var baseUrl = 'http://www.promobugs.com.br/';
 
                         console.log("Offer URL: " + offerUrl);
                         console.log("Offer headline: " + offerHeadline);
                         console.log("Offer ID: " + offerId);
+
+                        sendMailNotification(offerHeadline, baseUrl + offerUrl);
                     }
-
-
-
 
                     //TODO: store each new entry in the database
                 }else{
