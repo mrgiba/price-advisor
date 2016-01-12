@@ -1,6 +1,7 @@
 var crawlerjs = require('crawler-js'),
     cheerio = require('cheerio'),
     fs = require("fs"),
+    cron = require('node-schedule'),
     sendgrid;
 
 if(process.env.SENDGRID_USER && process.env.SENDGRID_KEY) {
@@ -47,6 +48,8 @@ if(process.env.SEARCH_KEYWORDS) {
 else {
     searchCriteria = JSON.parse(fs.readFileSync('./searchCriteria.json'));
 }
+
+console.log(JSON.stringify(searchCriteria));
 
 function evaluateOffer(headline) {
     var lowerCaseHeadline = normalizeString(headline);
@@ -136,6 +139,11 @@ var worlds = {
     ]
 };
 
-// TODO: setup schedule to run crawler in a regular basis
+var rule = new cron.RecurrenceRule();
+rule.minute = 0;
+//rule.second = 20;
+cron.scheduleJob(rule, function(){
+    console.log('[' + new Date() + '] Running crawler');
+    crawlerjs(worlds);
+});
 
-crawlerjs(worlds);
