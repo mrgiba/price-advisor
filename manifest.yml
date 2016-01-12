@@ -2,7 +2,7 @@ applications:
 - disk_quota: 1024M
   host: price-advisor
   name: price-advisor
-  command: node app.js
+  command: npm start
   path: .
   domain: mybluemix.net
   instances: 1
