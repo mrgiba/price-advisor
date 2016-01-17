@@ -1,7 +1,5 @@
-var crawlerjs = require('crawler-js'),
-    cheerio = require('cheerio'),
+var cheerio = require('cheerio'),
     fs = require("fs"),
-    cron = require('node-schedule'),
     sendgrid;
 
 if(process.env.SENDGRID_USER && process.env.SENDGRID_KEY) {
@@ -49,7 +47,7 @@ else {
     searchCriteria = JSON.parse(fs.readFileSync('./searchCriteria.json'));
 }
 
-console.log(JSON.stringify(searchCriteria));
+console.log('Search criteria: ' + JSON.stringify(searchCriteria));
 
 function evaluateOffer(headline) {
     var lowerCaseHeadline = normalizeString(headline);
@@ -89,7 +87,7 @@ function sendMailNotification(offerHeadline, offerUrl) {
 
 //     get: 'http://www.promobugs.com.br/forums/promocoes.4/page-[numbers:1:1:1]'
 
-var worlds = {
+var crawler = {
     interval: 1000,
     getSample: 'http://www.promobugs.com.br/forums/promocoes.4/',
     get: 'http://www.promobugs.com.br/forums/promocoes.4/page-[numbers:1:1:1]',
@@ -139,11 +137,4 @@ var worlds = {
     ]
 };
 
-var rule = new cron.RecurrenceRule();
-rule.minute = 0;
-//rule.second = 20;
-cron.scheduleJob(rule, function(){
-    console.log('[' + new Date() + '] Running crawler');
-    crawlerjs(worlds);
-});
-
+module.exports = crawler;
