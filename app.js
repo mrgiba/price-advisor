@@ -53,8 +53,8 @@
 
     crawlerjs(promoBugsCrawler);
     var rule = new cron.RecurrenceRule();
-    //rule.minute = 0;
-    rule.second = 20;
+    rule.minute = 0;
+    //rule.second = 20;
     cron.scheduleJob(rule, function () {
         console.log('[' + new Date() + '] Running crawler');
         crawlerjs(promoBugsCrawler);

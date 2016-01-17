@@ -64,9 +64,8 @@ function evaluateOffer(headline) {
 }
 
 function sendMailNotification(offerHeadline, offerUrl) {
-    //to      : 'priceuser@mailinator.com',
     var payload   = {
-        to      : 'mrgiba@gmail.com',
+        to      : 'priceuser@mailinator.com',
         from    : "advisor@price-advisor.mybluemix.net",
         fromname: "Price Advisor",
         subject : 'Offer found',
