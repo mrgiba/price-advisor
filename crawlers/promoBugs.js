@@ -88,8 +88,8 @@ function sendMailNotification(offerHeadline, offerUrl) {
 
 var crawler = {
     interval: 1000,
-    getSample: 'http://www.promobugs.com.br/forums/promocoes.4/',
-    get: 'http://www.promobugs.com.br/forums/promocoes.4/page-[numbers:1:1:1]',
+    getSample: 'http://www.promoforum.com.br/forums/promocoes/',
+    get: 'http://www.promoforum.com.br/forums/promocoes/page-[numbers:1:1:1]',
     preview: 0,
     extractors: [
         {
@@ -118,7 +118,7 @@ var crawler = {
                     var offerHeadline = previewToolTip.text();
 
                     if(offerUrl && evaluateOffer(offerHeadline)) {
-                        var baseUrl = 'http://www.promobugs.com.br/';
+                        var baseUrl = 'http://www.promoforum.com.br/';
 
                         console.log("Offer URL: " + offerUrl);
                         console.log("Offer headline: " + offerHeadline);
