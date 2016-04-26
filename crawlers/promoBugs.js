@@ -41,7 +41,7 @@ function normalizeString( headline ) {
 //var searchCriteria = JSON.parse(fs.readFileSync('./searchCriteria.json'));
 var searchCriteria;
 if(process.env.SEARCH_KEYWORDS) {
-    searchCriteria = {words: process.env.SEARCH_KEYWORDS.split(/[\s,]+/i)}
+    searchCriteria = {words: process.env.SEARCH_KEYWORDS.split(/\s*,+\s*/i)}
 }
 else {
     searchCriteria = JSON.parse(fs.readFileSync('./searchCriteria.json'));
