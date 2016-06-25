@@ -1,0 +1,17 @@
+{
+    "undef": true,
+    "unused": true,
+    "curly": true,
+    "eqeqeq": true,
+    "forin": true,
+    "freeze": true,
+    "funcscope": false,
+    "maxcomplexity": 20,
+    "maxdepth": 10,
+    "maxparams": 8,
+    "maxstatements": 65,
+    "nonew": true,
+    "mocha": true,
+    "node": true,
+    "predef": ["$"]
+}

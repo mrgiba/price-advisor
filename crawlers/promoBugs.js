@@ -68,8 +68,8 @@ function sendMailNotification(offerHeadline, offerUrl) {
         to      : process.env.MAIL_ADDRESS || 'priceuser@mailinator.com',
         from    : "advisor@price-advisor.mybluemix.net",
         fromname: "Price Advisor",
-        subject : 'Offer found',
-        html    : 'Offer found<br>' + offerHeadline + '<br>' + offerUrl
+        subject : 'Offer found: ' + offerHeadline,
+        html    : offerHeadline + '<br>' + offerUrl
     }
 
     if(sendgrid) {
